@@ -1,20 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animated Background</title>
-    <link rel="stylesheet" href="style/app.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ChromaFlow | Dynamic Gradient Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* avoid accidental text selection on sliders, but keeps text selectable elsewhere */
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #FFF338, #ee7752, #e73c7e, #FF67E7, #23a6d5, #28FFBF);
+            background-size: 400% 400%;
+            background-repeat: no-repeat;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Montserrat', sans-serif;
+            transition: background 0.2s ease;
+            animation: flowShift 12s ease infinite;
+        }
+
+        /* original keyframes - will be dynamically replaced or kept as fallback */
+        @keyframes flowShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* main glassmorphism card */
+        .hero {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            backdrop-filter: blur(2px);
+            padding: 1.5rem;
+        }
+
+        .glass-panel {
+            background: rgba(15, 25, 45, 0.35);
+            backdrop-filter: blur(14px);
+            border-radius: 2.5rem;
+            padding: 2rem 2rem 2.2rem;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,240,0.3);
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .title-section .name {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, #ffe6b0);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .title-section .sub {
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-top: 0.5rem;
+            color: #fef9e8;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0,0,0,0.3);
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            margin-top: 0.7rem;
+        }
+
+        /* control panels */
+        .control-group {
+            background: rgba(10, 20, 30, 0.5);
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.3rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,210,0.2);
+            transition: all 0.2s;
+        }
+
+        .control-group h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+            color: #fff3cf;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 12px 5px 8px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+        }
+
+        .color-picker-wrapper label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #fffbee;
+        }
+
+        input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            background: transparent;
+            padding: 0;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+        }
+        input[type="color"]:hover {
+            transform: scale(1.05);
+        }
+
+        .speed-slider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .speed-slider span {
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(0,0,0,0.4);
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 5px;
+            -webkit-appearance: none;
+            background: rgba(255,255,200,0.6);
+            border-radius: 10px;
+            outline: none;
+        }
+        input[type="range"]:focus {
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 6px #fffaec;
+            border: none;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .preset-btn {
+            background: rgba(30,30,50,0.7);
+            border: none;
+            backdrop-filter: blur(4px);
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.5px;
+            font-family: inherit;
+            border: 1px solid rgba(255,255,200,0.4);
+        }
+        .preset-btn:hover {
+            background: rgba(255,255,245,0.25);
+            transform: translateY(-2px);
+            border-color: rgba(255,250,200,0.9);
+        }
+        .randomize-btn {
+            background: linear-gradient(120deg, #ffb347, #ff6b4a);
+            border: none;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .reset-btn {
+            background: rgba(20,30,45,0.8);
+            border: 1px solid rgba(255,215,150,0.6);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        button {
+            cursor: pointer;
+        }
+        .info-text {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 1.4rem;
+            opacity: 0.7;
+            color: #f0f0e0;
+        }
+
+        @media (max-width: 580px) {
+            .glass-panel { padding: 1.5rem; }
+            .title-section .name { font-size: 2rem; }
+            .color-picker-wrapper label { font-size: 0.7rem; }
+            .color-picker-wrapper { padding: 3px 8px; }
+            input[type="color"] { width: 34px; height: 34px; }
+        }
+        /* micro interaction */
+        .glass-panel *:focus-visible {
+            outline: 2px solid gold;
+            border-radius: 20px;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="myClass">
-        <div class="txtOne">Armin - Mehraeen</div>
-        <h1></h1>
-        <div class="txtTwo">Animated Background with Css</div>
-    </div>
-</body>
 
+<div class="hero">
+    <div class="glass-panel">
+        <div class="title-section">
+            <div class="name">Armin - Mehraeen</div>
+            <div class="sub">✨ ChromaFlow Gradient Lab ✨</div>
+            <div class="badge">🎨 live editable · animated background</div>
+        </div>
+
+        <!-- Color Palette Manager -->
+        <div class="control-group">
+            <h3>🎨 GRADIENT COLORS (drag to change)</h3>
+            <div id="colorListContainer" class="color-grid">
+                <!-- dynamic color pickers will be injected here -->
+            </div>
+            <div class="action-buttons" style="margin-top: 12px;">
+                <button id="addColorBtn" class="preset-btn" style="background:#3a5a7a;">➕ Add Color</button>
+                <button id="removeColorBtn" class="preset-btn" style="background:#6a3a4a;">➖ Remove Last</button>
+            </div>
+        </div>
+
+        <!-- Animation Speed & Direction -->
+        <div class="control-group">
+            <h3>⏱️ FLOW DYNAMICS</h3>
+            <div class="speed-slider">
+                <span>🌀 Speed</span>
+                <input type="range" id="speedRange" min="3" max="25" step="0.5" value="12">
+                <span id="speedValue">12s</span>
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size:0.85rem;">🌊 Animation Easing:</span>
+                <select id="easingSelect" style="background: rgba(0,0,0,0.5); color:white; border-radius: 60px; padding: 6px 12px; border: 1px solid rgba(255,255,200,0.5); font-family: inherit;">
+                    <option value="ease">ease (smooth)</option>
+                    <option value="ease-in-out">ease-in-out</option>
+                    <option value="linear">linear</option>
+                    <option value="ease-out">ease-out</option>
+                    <option value="ease-in">ease-in</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Preset Themes & Randomizer -->
+        <div class="control-group">
+            <h3>✨ MAGIC PRESETS</h3>
+            <div class="preset-buttons">
+                <button class="preset-btn" data-preset="sunset">🌅 Sunset Bliss</button>
+                <button class="preset-btn" data-preset="aurora">🌌 Aurora Night</button>
+                <button class="preset-btn" data-preset="candy">🍬 Candy Pop</button>
+                <button class="preset-btn" data-preset="ocean">🌊 Deep Ocean</button>
+                <button class="preset-btn" data-preset="forest">🍃 Forest Haze</button>
+            </div>
+            <div class="action-buttons" style="margin-top: 18px;">
+                <button id="randomizeBtn" class="preset-btn randomize-btn">🎲 Random Gradient</button>
+                <button id="resetDefaultBtn" class="preset-btn reset-btn">⟳ Reset to Classic</button>
+            </div>
+        </div>
+        <div class="info-text">
+            💡 Tip: Modify colors live, adjust animation speed & easing — gradient shifts smoothly!
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- DOM Elements ----------
+        const bodyEl = document.body;
+        const colorContainer = document.getElementById('colorListContainer');
+        const addBtn = document.getElementById('addColorBtn');
+        const removeBtn = document.getElementById('removeColorBtn');
+        const speedSlider = document.getElementById('speedRange');
+        const speedValueSpan = document.getElementById('speedValue');
+        const easingSelect = document.getElementById('easingSelect');
+        const randomizeBtn = document.getElementById('randomizeBtn');
+        const resetDefaultBtn = document.getElementById('resetDefaultBtn');
+        const presetBtns = document.querySelectorAll('[data-preset]');
+        
+        // ---------- State ----------
+        let activeColors = [];       // stores current gradient color strings (hex or any)
+        let currentAnimation = null; // to update keyframes dynamically
+        
+        // Default starting palette (inspired by original but vibrant)
+        const defaultColors = ["#FFF338", "#ee7752", "#e73c7e", "#FF67E7", "#23a6d5", "#28FFBF"];
+        
+        // Helper: Update CSS gradient + animation style without full style replacement
+        function updateGradientAndKeyframes() {
+            if (!activeColors.length) return;
+            // build new gradient string: linear-gradient(-45deg, color1, color2, ...)
+            const gradientString = `linear-gradient(-45deg, ${activeColors.join(', ')})`;
+            // set background properties, keep size & repeat same as classic
+            bodyEl.style.backgroundImage = gradientString;
+            bodyEl.style.backgroundSize = "400% 400%";
+            bodyEl.style.backgroundRepeat = "no-repeat";
+            // ensure transition effect on background? not needed but smooth re-render.
+        }
+        
+        // Dynamically inject/update keyframes based on speed and easing
+        function refreshAnimation() {
+            const speed = parseFloat(speedSlider.value);
+            const easing = easingSelect.value;
+            // update displayed speed text
+            speedValueSpan.innerText = speed + "s";
+            
+            // Create dynamic keyframe name to force reflow
+            const styleId = 'dynamic-gradient-animation';
+            let styleTag = document.getElementById(styleId);
+            if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = styleId;
+                document.head.appendChild(styleTag);
+            }
+            // define keyframes with current speed and easing
+            // We set animation properties on body.
+            const keyframeRules = `
+                @keyframes dynamicGradientFlow {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+            `;
+            // apply animation to body with current duration + easing
+            styleTag.textContent = keyframeRules;
+            bodyEl.style.animation = `dynamicGradientFlow ${speed}s ${easing} infinite`;
+        }
+        
+        // Combined UI update when anything changes (colors, speed, easing)
+        function fullUpdate() {
+            updateGradientAndKeyframes();
+            refreshAnimation();
+        }
+        
+        // Update color pickers UI from activeColors array
+        function renderColorPickers() {
+            colorContainer.innerHTML = '';
+            activeColors.forEach((color, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'color-picker-wrapper';
+                const label = document.createElement('label');
+                label.innerText = `${idx+1}`;
+                const colorInput = document.createElement('input');
+                colorInput.type = 'color';
+                colorInput.value = color;
+                colorInput.setAttribute('data-index', idx);
+                // when color changes, update activeColors and re-render gradient live
+                colorInput.addEventListener('input', (e) => {
+                    const newColor = e.target.value;
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    if (!isNaN(index) && activeColors[index]) {
+                        activeColors[index] = newColor;
+                        updateGradientAndKeyframes();  // live background update
+                        // We don't re-render entire pickers to avoid losing focus, but keep consistency
+                        // but to keep the label values, we just update silently.
+                        // However the picker value already shows new color. Perfect.
+                    }
+                });
+                wrapper.appendChild(label);
+                wrapper.appendChild(colorInput);
+                colorContainer.appendChild(wrapper);
+            });
+        }
+        
+        // Set activeColors and sync UI + gradient + animation
+        function setColorPalette(newColorsArray) {
+            if (!newColorsArray.length) newColorsArray = ['#ff9a9e', '#fad0c4']; // fallback
+            activeColors = [...newColorsArray];
+            renderColorPickers();
+            updateGradientAndKeyframes();
+            // No need to reset animation speed, keep as user settings
+        }
+        
+        // Add a new random color to the palette
+        function addColor() {
+            const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+            activeColors.push(randomHex);
+            renderColorPickers();
+            updateGradientAndKeyframes();
+        }
+        
+        function removeLastColor() {
+            if (activeColors.length <= 2) {
+                // keep at least 2 colors for gradient beauty
+                const toastMsg = document.createElement('div');
+                toastMsg.innerText = '🌈 need at least 2 colors!';
+                toastMsg.style.position = 'fixed';
+                toastMsg.style.bottom = '20px';
+                toastMsg.style.left = '50%';
+                toastMsg.style.transform = 'translateX(-50%)';
+                toastMsg.style.background = 'rgba(0,0,0,0.7)';
+                toastMsg.style.backdropFilter = 'blur(8px)';
+                toastMsg.style.padding = '8px 20px';
+                toastMsg.style.borderRadius = '60px';
+                toastMsg.style.color = 'white';
+                toastMsg.style.fontSize = '0.8rem';
+                toastMsg.style.zIndex = '999';
+                document.body.appendChild(toastMsg);
+                setTimeout(() => toastMsg.remove(), 1500);
+                return;
+            }
+            activeColors.pop();
+            renderColorPickers();
+            updateGradientAndKeyframes();
+        }
+        
+        // preset library
+        const presets = {
+            sunset: ['#FF512F', '#F09819', '#FFD34E', '#E26D5C', '#FFB347'],
+            aurora: ['#1F1C2C', '#2C5364', '#0F2027', '#203A43', '#4CA1AF', '#2C3E50'],
+            candy: ['#f857a6', '#ff5858', '#FF9A9E', '#FECFEF', '#FFB7B2', '#FF6B8B'],
+            ocean: ['#00C9FF', '#92FE9D', '#1A2980', '#26D0CE', '#0062E6', '#7F00FF'],
+            forest: ['#11998e', '#38ef7d', '#D4F1F9', '#A1FFCE', '#56ab2f', '#a8e063']
+        };
+        
+        function applyPreset(presetName) {
+            if (presets[presetName]) {
+                setColorPalette(presets[presetName]);
+            }
+        }
+        
+        function randomGradient() {
+            const randomLength = Math.floor(Math.random() * 5) + 3; // 3 to 7 colors
+            const newColors = [];
+            for (let i = 0; i < randomLength; i++) {
+                const hue = Math.floor(Math.random() * 360);
+                const sat = Math.floor(Math.random() * 60) + 40; // 40-100%
+                const light = Math.floor(Math.random() * 50) + 40; // 40-90%
+                newColors.push(`hsl(${hue}, ${sat}%, ${light}%)`);
+            }
+            setColorPalette(newColors);
+        }
+        
+        function resetToClassic() {
+            setColorPalette([...defaultColors]);
+            // also reset speed to 12, easing to ease
+            speedSlider.value = '12';
+            speedValueSpan.innerText = '12s';
+            easingSelect.value = 'ease';
+            refreshAnimation();
+        }
+        
+        // event handlers for speed & easing
+        function bindGlobalControls() {
+            speedSlider.addEventListener('input', (e) => {
+                speedValueSpan.innerText = e.target.value + 's';
+                refreshAnimation();
+            });
+            easingSelect.addEventListener('change', () => {
+                refreshAnimation();
+            });
+            addBtn.addEventListener('click', addColor);
+            removeBtn.addEventListener('click', removeLastColor);
+            randomizeBtn.addEventListener('click', randomGradient);
+            resetDefaultBtn.addEventListener('click', resetToClassic);
+            presetBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const presetVal = btn.getAttribute('data-preset');
+                    if (presetVal) applyPreset(presetVal);
+                });
+            });
+        }
+        
+        // Also watch for window load and ensure keyframe + background size
+        function init() {
+            // set default active colors
+            activeColors = [...defaultColors];
+            renderColorPickers();
+            updateGradientAndKeyframes();
+            bindGlobalControls();
+            refreshAnimation();
+            // small extra: set background size initial (already set via style but body style has it)
+            bodyEl.style.backgroundSize = "400% 400%";
+            bodyEl.style.backgroundRepeat = "no-repeat";
+            // make sure any exisitng inline styles from original not conflict
+            // Also ensure backdrop on glass panel gives depth
+        }
+        
+        // additional: If user clicks on randomize often, it's super responsive.
+        init();
+    })();
+</script>
+</body>
 </html>
