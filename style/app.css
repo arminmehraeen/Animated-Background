@@ -1,0 +1,30 @@
+body{
+    background: linear-gradient(-45deg,#FFF338,#ee7752,#e73c7e,#FF67E7,#23a6d5,#28FFBF);
+    background-size: 400%,400%;
+    background-repeat: no-repeat;
+    height: 100vh;
+    color: white;
+    animation: gradient 10s ease-out infinite;
+}
+.myClass {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 500px;
+    text-align: center;
+}
+.myClass div{
+    font-size: 40px;
+}
+
+@keyframes gradient {
+    0%{
+        background-position: 0% 50%;
+    }
+    50%{
+        background-position: 100% 50%;
+    }
+    100%{
+        background-position: 0% 50%;
+    }
+}
