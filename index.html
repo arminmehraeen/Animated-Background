@@ -1,537 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>ChromaFlow | Dynamic Gradient Studio</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none; /* avoid accidental text selection on sliders, but keeps text selectable elsewhere */
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(-45deg, #FFF338, #ee7752, #e73c7e, #FF67E7, #23a6d5, #28FFBF);
-            background-size: 400% 400%;
-            background-repeat: no-repeat;
-            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Montserrat', sans-serif;
-            transition: background 0.2s ease;
-            animation: flowShift 12s ease infinite;
-        }
-
-        /* original keyframes - will be dynamically replaced or kept as fallback */
-        @keyframes flowShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* main glassmorphism card */
-        .hero {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            backdrop-filter: blur(2px);
-            padding: 1.5rem;
-        }
-
-        .glass-panel {
-            background: rgba(15, 25, 45, 0.35);
-            backdrop-filter: blur(14px);
-            border-radius: 2.5rem;
-            padding: 2rem 2rem 2.2rem;
-            width: 100%;
-            max-width: 700px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,240,0.3);
-        }
-
-        .title-section {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .title-section .name {
-            font-size: 2.6rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff, #ffe6b0);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .title-section .sub {
-            font-size: 1.2rem;
-            font-weight: 400;
-            margin-top: 0.5rem;
-            color: #fef9e8;
-            opacity: 0.9;
-            letter-spacing: 0.5px;
-        }
-
-        .badge {
-            display: inline-block;
-            background: rgba(0,0,0,0.3);
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            backdrop-filter: blur(4px);
-            margin-top: 0.7rem;
-        }
-
-        /* control panels */
-        .control-group {
-            background: rgba(10, 20, 30, 0.5);
-            border-radius: 1.8rem;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.3rem;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,210,0.2);
-            transition: all 0.2s;
-        }
-
-        .control-group h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 1rem;
-            color: #fff3cf;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .color-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-
-        .color-picker-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(0,0,0,0.3);
-            padding: 5px 12px 5px 8px;
-            border-radius: 60px;
-            backdrop-filter: blur(4px);
-        }
-
-        .color-picker-wrapper label {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #fffbee;
-        }
-
-        input[type="color"] {
-            width: 40px;
-            height: 40px;
-            border: 2px solid white;
-            border-radius: 50%;
-            cursor: pointer;
-            background: transparent;
-            padding: 0;
-            outline: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: transform 0.1s ease;
-        }
-        input[type="color"]:hover {
-            transform: scale(1.05);
-        }
-
-        .speed-slider {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 5px;
-        }
-        .speed-slider span {
-            font-size: 0.85rem;
-            font-weight: 500;
-            background: rgba(0,0,0,0.4);
-            padding: 4px 12px;
-            border-radius: 40px;
-        }
-        input[type="range"] {
-            flex: 1;
-            height: 5px;
-            -webkit-appearance: none;
-            background: rgba(255,255,200,0.6);
-            border-radius: 10px;
-            outline: none;
-        }
-        input[type="range"]:focus {
-            outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 6px #fffaec;
-            border: none;
-        }
-
-        .preset-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 10px;
-        }
-        .preset-btn {
-            background: rgba(30,30,50,0.7);
-            border: none;
-            backdrop-filter: blur(4px);
-            padding: 8px 18px;
-            border-radius: 60px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 0.5px;
-            font-family: inherit;
-            border: 1px solid rgba(255,255,200,0.4);
-        }
-        .preset-btn:hover {
-            background: rgba(255,255,245,0.25);
-            transform: translateY(-2px);
-            border-color: rgba(255,250,200,0.9);
-        }
-        .randomize-btn {
-            background: linear-gradient(120deg, #ffb347, #ff6b4a);
-            border: none;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        .reset-btn {
-            background: rgba(20,30,45,0.8);
-            border: 1px solid rgba(255,215,150,0.6);
-        }
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-        button {
-            cursor: pointer;
-        }
-        .info-text {
-            text-align: center;
-            font-size: 0.7rem;
-            margin-top: 1.4rem;
-            opacity: 0.7;
-            color: #f0f0e0;
-        }
-
-        @media (max-width: 580px) {
-            .glass-panel { padding: 1.5rem; }
-            .title-section .name { font-size: 2rem; }
-            .color-picker-wrapper label { font-size: 0.7rem; }
-            .color-picker-wrapper { padding: 3px 8px; }
-            input[type="color"] { width: 34px; height: 34px; }
-        }
-        /* micro interaction */
-        .glass-panel *:focus-visible {
-            outline: 2px solid gold;
-            border-radius: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ChromaFlow — a dependency-free animated gradient background studio.">
+  <meta name="theme-color" content="#111827">
+  <title>ChromaFlow — Animated Background Studio</title>
+  <style>
+    :root { color-scheme: dark; --panel: rgba(10,16,30,.68); --border: rgba(255,255,255,.14); --text:#f8fafc; --muted:#cbd5e1; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; }
+    body { min-height:100vh; overflow-x:hidden; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--text); background:#0b1020; }
+    button,input,select { font:inherit; }
+    button { cursor:pointer; }
+    #background { position:fixed; inset:0; z-index:-3; overflow:hidden; background:#0b1020; }
+    #background::after { content:""; position:absolute; inset:-20%; background:radial-gradient(circle at 50% 50%, transparent 0 35%, rgba(0,0,0,.22) 100%); pointer-events:none; }
+    .noise { position:absolute; inset:0; opacity:var(--noise-opacity,0); mix-blend-mode:soft-light; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); pointer-events:none; }
+    .app { min-height:100vh; padding:32px 18px; display:grid; place-items:center; }
+    .panel { width:min(940px,100%); background:var(--panel); border:1px solid var(--border); border-radius:28px; padding:28px; backdrop-filter:blur(24px); box-shadow:0 30px 100px rgba(0,0,0,.35); }
+    header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:24px; }
+    .eyebrow { color:#a5b4fc; font-size:.75rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:6px 0 4px; font-size:clamp(2rem,5vw,3.25rem); line-height:1; letter-spacing:-.045em; }
+    .subtitle { color:var(--muted); margin:0; max-width:650px; }
+    .header-actions,.actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .icon-btn,.btn { border:1px solid var(--border); color:var(--text); background:rgba(255,255,255,.07); border-radius:12px; padding:9px 12px; transition:.18s ease; }
+    .icon-btn:hover,.btn:hover { background:rgba(255,255,255,.13); transform:translateY(-1px); }
+    .btn.primary { background:rgba(99,102,241,.28); border-color:rgba(129,140,248,.5); }
+    .btn.danger { background:rgba(244,63,94,.16); }
+    .section { background:rgba(2,6,23,.34); border:1px solid var(--border); border-radius:20px; padding:18px; margin-top:14px; }
+    .section-title { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+    h2 { font-size:.95rem; margin:0; letter-spacing:.06em; text-transform:uppercase; }
+    .hint { color:#94a3b8; font-size:.78rem; }
+    .colors { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+    .color-item { display:grid; grid-template-columns:46px 1fr auto; gap:9px; align-items:center; padding:9px; border-radius:14px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.08); }
+    .color-item input[type=color] { width:42px; height:42px; border:0; padding:0; border-radius:12px; background:none; overflow:hidden; }
+    .hex { width:100%; min-width:0; color:var(--text); background:transparent; border:0; outline:0; text-transform:uppercase; font-size:.85rem; }
+    .mini { width:34px; height:34px; border:1px solid var(--border); border-radius:10px; color:#e2e8f0; background:transparent; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .field { display:grid; gap:8px; }
+    .field.full { grid-column:1/-1; }
+    label { color:#cbd5e1; font-size:.8rem; font-weight:650; }
+    .row { display:flex; align-items:center; gap:10px; }
+    .value { min-width:60px; text-align:right; color:#e2e8f0; font-variant-numeric:tabular-nums; font-size:.8rem; }
+    input[type=range] { width:100%; accent-color:#818cf8; }
+    select { width:100%; color:var(--text); background:#111827; border:1px solid var(--border); border-radius:11px; padding:10px; outline:0; }
+    .presets { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:9px; }
+    .preset { position:relative; min-height:72px; border:1px solid var(--border); border-radius:14px; overflow:hidden; color:white; text-align:left; padding:12px; background:#111827; }
+    .preset::before { content:""; position:absolute; inset:0; background:var(--preview); opacity:.9; z-index:0; }
+    .preset span { position:relative; z-index:1; font-weight:750; text-shadow:0 1px 5px #000; }
+    .toggles { display:flex; flex-wrap:wrap; gap:9px; }
+    .toggle { display:flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:12px; padding:9px 11px; background:rgba(255,255,255,.045); font-size:.8rem; }
+    .status { margin-top:14px; display:flex; justify-content:space-between; gap:12px; color:#94a3b8; font-size:.75rem; }
+    .toast { position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); opacity:0; pointer-events:none; background:#020617; color:white; border:1px solid var(--border); padding:10px 14px; border-radius:12px; transition:.2s; z-index:10; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    dialog { width:min(680px,calc(100% - 28px)); border:1px solid var(--border); border-radius:20px; background:#0b1120; color:var(--text); padding:20px; }
+    dialog::backdrop { background:rgba(0,0,0,.65); backdrop-filter:blur(5px); }
+    pre { max-height:55vh; overflow:auto; background:#020617; border-radius:12px; padding:14px; white-space:pre-wrap; word-break:break-word; color:#dbeafe; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    :focus-visible { outline:2px solid #a5b4fc; outline-offset:2px; }
+    @media (max-width:680px) { .panel{padding:18px;border-radius:22px} header{display:block}.header-actions{margin-top:15px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.status{display:block}.status span{display:block;margin-top:5px} }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important} }
+  </style>
 </head>
 <body>
-
-<div class="hero">
-    <div class="glass-panel">
-        <div class="title-section">
-            <div class="name">Armin - Mehraeen</div>
-            <div class="sub">✨ ChromaFlow Gradient Lab ✨</div>
-            <div class="badge">🎨 live editable · animated background</div>
+  <div id="background" aria-hidden="true"><div class="noise"></div></div>
+  <main class="app">
+    <section class="panel" aria-label="ChromaFlow Gradient Studio">
+      <header>
+        <div>
+          <div class="eyebrow">Animated Background Studio</div>
+          <h1>ChromaFlow</h1>
+          <p class="subtitle">Design, preview, save and export beautiful animated gradients — zero dependencies, one HTML file.</p>
         </div>
-
-        <!-- Color Palette Manager -->
-        <div class="control-group">
-            <h3>🎨 GRADIENT COLORS (drag to change)</h3>
-            <div id="colorListContainer" class="color-grid">
-                <!-- dynamic color pickers will be injected here -->
-            </div>
-            <div class="action-buttons" style="margin-top: 12px;">
-                <button id="addColorBtn" class="preset-btn" style="background:#3a5a7a;">➕ Add Color</button>
-                <button id="removeColorBtn" class="preset-btn" style="background:#6a3a4a;">➖ Remove Last</button>
-            </div>
+        <div class="header-actions">
+          <button class="icon-btn" id="pauseBtn" type="button">⏸ Pause</button>
+          <button class="icon-btn" id="fullscreenBtn" type="button">⛶ Fullscreen</button>
+          <button class="icon-btn" id="helpBtn" type="button">? Help</button>
         </div>
+      </header>
 
-        <!-- Animation Speed & Direction -->
-        <div class="control-group">
-            <h3>⏱️ FLOW DYNAMICS</h3>
-            <div class="speed-slider">
-                <span>🌀 Speed</span>
-                <input type="range" id="speedRange" min="3" max="25" step="0.5" value="12">
-                <span id="speedValue">12s</span>
-            </div>
-            <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <span style="font-size:0.85rem;">🌊 Animation Easing:</span>
-                <select id="easingSelect" style="background: rgba(0,0,0,0.5); color:white; border-radius: 60px; padding: 6px 12px; border: 1px solid rgba(255,255,200,0.5); font-family: inherit;">
-                    <option value="ease">ease (smooth)</option>
-                    <option value="ease-in-out">ease-in-out</option>
-                    <option value="linear">linear</option>
-                    <option value="ease-out">ease-out</option>
-                    <option value="ease-in">ease-in</option>
-                </select>
-            </div>
+      <section class="section">
+        <div class="section-title"><h2>🎨 Color palette</h2><span class="hint">2–8 colors</span></div>
+        <div id="colors" class="colors"></div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn" id="addColor" type="button">＋ Add color</button>
+          <button class="btn" id="randomize" type="button">🎲 Randomize</button>
+          <button class="btn" id="reset" type="button">↺ Reset</button>
         </div>
+      </section>
 
-        <!-- Preset Themes & Randomizer -->
-        <div class="control-group">
-            <h3>✨ MAGIC PRESETS</h3>
-            <div class="preset-buttons">
-                <button class="preset-btn" data-preset="sunset">🌅 Sunset Bliss</button>
-                <button class="preset-btn" data-preset="aurora">🌌 Aurora Night</button>
-                <button class="preset-btn" data-preset="candy">🍬 Candy Pop</button>
-                <button class="preset-btn" data-preset="ocean">🌊 Deep Ocean</button>
-                <button class="preset-btn" data-preset="forest">🍃 Forest Haze</button>
-            </div>
-            <div class="action-buttons" style="margin-top: 18px;">
-                <button id="randomizeBtn" class="preset-btn randomize-btn">🎲 Random Gradient</button>
-                <button id="resetDefaultBtn" class="preset-btn reset-btn">⟳ Reset to Classic</button>
-            </div>
+      <section class="section">
+        <div class="section-title"><h2>⚙️ Animation</h2><span class="hint">Live preview</span></div>
+        <div class="grid">
+          <div class="field"><label for="type">Gradient type</label><select id="type"><option value="linear">Linear</option><option value="radial">Radial</option></select></div>
+          <div class="field"><label for="easing">Easing</label><select id="easing"><option value="ease-in-out">Ease in/out</option><option value="linear">Linear</option><option value="ease">Ease</option><option value="ease-out">Ease out</option><option value="ease-in">Ease in</option></select></div>
+          <div class="field"><label for="speed">Animation speed</label><div class="row"><input id="speed" type="range" min="3" max="40" step="0.5"><span class="value" id="speedValue"></span></div></div>
+          <div class="field"><label for="angle">Angle / direction</label><div class="row"><input id="angle" type="range" min="0" max="360" step="1"><span class="value" id="angleValue"></span></div></div>
+          <div class="field"><label for="scale">Movement scale</label><div class="row"><input id="scale" type="range" min="100" max="700" step="10"><span class="value" id="scaleValue"></span></div></div>
+          <div class="field"><label for="blur">Background blur</label><div class="row"><input id="blur" type="range" min="0" max="40" step="1"><span class="value" id="blurValue"></span></div></div>
+          <div class="field full"><label for="opacity">Overlay darkness</label><div class="row"><input id="opacity" type="range" min="0" max="0.75" step="0.01"><span class="value" id="opacityValue"></span></div></div>
         </div>
-        <div class="info-text">
-            💡 Tip: Modify colors live, adjust animation speed & easing — gradient shifts smoothly!
-        </div>
-    </div>
-</div>
+      </section>
 
-<script>
-    (function() {
-        // ---------- DOM Elements ----------
-        const bodyEl = document.body;
-        const colorContainer = document.getElementById('colorListContainer');
-        const addBtn = document.getElementById('addColorBtn');
-        const removeBtn = document.getElementById('removeColorBtn');
-        const speedSlider = document.getElementById('speedRange');
-        const speedValueSpan = document.getElementById('speedValue');
-        const easingSelect = document.getElementById('easingSelect');
-        const randomizeBtn = document.getElementById('randomizeBtn');
-        const resetDefaultBtn = document.getElementById('resetDefaultBtn');
-        const presetBtns = document.querySelectorAll('[data-preset]');
-        
-        // ---------- State ----------
-        let activeColors = [];       // stores current gradient color strings (hex or any)
-        let currentAnimation = null; // to update keyframes dynamically
-        
-        // Default starting palette (inspired by original but vibrant)
-        const defaultColors = ["#FFF338", "#ee7752", "#e73c7e", "#FF67E7", "#23a6d5", "#28FFBF"];
-        
-        // Helper: Update CSS gradient + animation style without full style replacement
-        function updateGradientAndKeyframes() {
-            if (!activeColors.length) return;
-            // build new gradient string: linear-gradient(-45deg, color1, color2, ...)
-            const gradientString = `linear-gradient(-45deg, ${activeColors.join(', ')})`;
-            // set background properties, keep size & repeat same as classic
-            bodyEl.style.backgroundImage = gradientString;
-            bodyEl.style.backgroundSize = "400% 400%";
-            bodyEl.style.backgroundRepeat = "no-repeat";
-            // ensure transition effect on background? not needed but smooth re-render.
-        }
-        
-        // Dynamically inject/update keyframes based on speed and easing
-        function refreshAnimation() {
-            const speed = parseFloat(speedSlider.value);
-            const easing = easingSelect.value;
-            // update displayed speed text
-            speedValueSpan.innerText = speed + "s";
-            
-            // Create dynamic keyframe name to force reflow
-            const styleId = 'dynamic-gradient-animation';
-            let styleTag = document.getElementById(styleId);
-            if (!styleTag) {
-                styleTag = document.createElement('style');
-                styleTag.id = styleId;
-                document.head.appendChild(styleTag);
-            }
-            // define keyframes with current speed and easing
-            // We set animation properties on body.
-            const keyframeRules = `
-                @keyframes dynamicGradientFlow {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
-                }
-            `;
-            // apply animation to body with current duration + easing
-            styleTag.textContent = keyframeRules;
-            bodyEl.style.animation = `dynamicGradientFlow ${speed}s ${easing} infinite`;
-        }
-        
-        // Combined UI update when anything changes (colors, speed, easing)
-        function fullUpdate() {
-            updateGradientAndKeyframes();
-            refreshAnimation();
-        }
-        
-        // Update color pickers UI from activeColors array
-        function renderColorPickers() {
-            colorContainer.innerHTML = '';
-            activeColors.forEach((color, idx) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'color-picker-wrapper';
-                const label = document.createElement('label');
-                label.innerText = `${idx+1}`;
-                const colorInput = document.createElement('input');
-                colorInput.type = 'color';
-                colorInput.value = color;
-                colorInput.setAttribute('data-index', idx);
-                // when color changes, update activeColors and re-render gradient live
-                colorInput.addEventListener('input', (e) => {
-                    const newColor = e.target.value;
-                    const index = parseInt(e.target.getAttribute('data-index'));
-                    if (!isNaN(index) && activeColors[index]) {
-                        activeColors[index] = newColor;
-                        updateGradientAndKeyframes();  // live background update
-                        // We don't re-render entire pickers to avoid losing focus, but keep consistency
-                        // but to keep the label values, we just update silently.
-                        // However the picker value already shows new color. Perfect.
-                    }
-                });
-                wrapper.appendChild(label);
-                wrapper.appendChild(colorInput);
-                colorContainer.appendChild(wrapper);
-            });
-        }
-        
-        // Set activeColors and sync UI + gradient + animation
-        function setColorPalette(newColorsArray) {
-            if (!newColorsArray.length) newColorsArray = ['#ff9a9e', '#fad0c4']; // fallback
-            activeColors = [...newColorsArray];
-            renderColorPickers();
-            updateGradientAndKeyframes();
-            // No need to reset animation speed, keep as user settings
-        }
-        
-        // Add a new random color to the palette
-        function addColor() {
-            const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
-            activeColors.push(randomHex);
-            renderColorPickers();
-            updateGradientAndKeyframes();
-        }
-        
-        function removeLastColor() {
-            if (activeColors.length <= 2) {
-                // keep at least 2 colors for gradient beauty
-                const toastMsg = document.createElement('div');
-                toastMsg.innerText = '🌈 need at least 2 colors!';
-                toastMsg.style.position = 'fixed';
-                toastMsg.style.bottom = '20px';
-                toastMsg.style.left = '50%';
-                toastMsg.style.transform = 'translateX(-50%)';
-                toastMsg.style.background = 'rgba(0,0,0,0.7)';
-                toastMsg.style.backdropFilter = 'blur(8px)';
-                toastMsg.style.padding = '8px 20px';
-                toastMsg.style.borderRadius = '60px';
-                toastMsg.style.color = 'white';
-                toastMsg.style.fontSize = '0.8rem';
-                toastMsg.style.zIndex = '999';
-                document.body.appendChild(toastMsg);
-                setTimeout(() => toastMsg.remove(), 1500);
-                return;
-            }
-            activeColors.pop();
-            renderColorPickers();
-            updateGradientAndKeyframes();
-        }
-        
-        // preset library
-        const presets = {
-            sunset: ['#FF512F', '#F09819', '#FFD34E', '#E26D5C', '#FFB347'],
-            aurora: ['#1F1C2C', '#2C5364', '#0F2027', '#203A43', '#4CA1AF', '#2C3E50'],
-            candy: ['#f857a6', '#ff5858', '#FF9A9E', '#FECFEF', '#FFB7B2', '#FF6B8B'],
-            ocean: ['#00C9FF', '#92FE9D', '#1A2980', '#26D0CE', '#0062E6', '#7F00FF'],
-            forest: ['#11998e', '#38ef7d', '#D4F1F9', '#A1FFCE', '#56ab2f', '#a8e063']
-        };
-        
-        function applyPreset(presetName) {
-            if (presets[presetName]) {
-                setColorPalette(presets[presetName]);
-            }
-        }
-        
-        function randomGradient() {
-            const randomLength = Math.floor(Math.random() * 5) + 3; // 3 to 7 colors
-            const newColors = [];
-            for (let i = 0; i < randomLength; i++) {
-                const hue = Math.floor(Math.random() * 360);
-                const sat = Math.floor(Math.random() * 60) + 40; // 40-100%
-                const light = Math.floor(Math.random() * 50) + 40; // 40-90%
-                newColors.push(`hsl(${hue}, ${sat}%, ${light}%)`);
-            }
-            setColorPalette(newColors);
-        }
-        
-        function resetToClassic() {
-            setColorPalette([...defaultColors]);
-            // also reset speed to 12, easing to ease
-            speedSlider.value = '12';
-            speedValueSpan.innerText = '12s';
-            easingSelect.value = 'ease';
-            refreshAnimation();
-        }
-        
-        // event handlers for speed & easing
-        function bindGlobalControls() {
-            speedSlider.addEventListener('input', (e) => {
-                speedValueSpan.innerText = e.target.value + 's';
-                refreshAnimation();
-            });
-            easingSelect.addEventListener('change', () => {
-                refreshAnimation();
-            });
-            addBtn.addEventListener('click', addColor);
-            removeBtn.addEventListener('click', removeLastColor);
-            randomizeBtn.addEventListener('click', randomGradient);
-            resetDefaultBtn.addEventListener('click', resetToClassic);
-            presetBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const presetVal = btn.getAttribute('data-preset');
-                    if (presetVal) applyPreset(presetVal);
-                });
-            });
-        }
-        
-        // Also watch for window load and ensure keyframe + background size
-        function init() {
-            // set default active colors
-            activeColors = [...defaultColors];
-            renderColorPickers();
-            updateGradientAndKeyframes();
-            bindGlobalControls();
-            refreshAnimation();
-            // small extra: set background size initial (already set via style but body style has it)
-            bodyEl.style.backgroundSize = "400% 400%";
-            bodyEl.style.backgroundRepeat = "no-repeat";
-            // make sure any exisitng inline styles from original not conflict
-            // Also ensure backdrop on glass panel gives depth
-        }
-        
-        // additional: If user clicks on randomize often, it's super responsive.
-        init();
+      <section class="section">
+        <div class="section-title"><h2>✨ Presets</h2><span class="hint">Instant themes</span></div>
+        <div id="presets" class="presets"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><h2>🧰 Tools</h2><span class="hint">Keyboard: Space = pause · R = randomize</span></div>
+        <div class="toggles">
+          <label class="toggle"><input id="autoSave" type="checkbox" checked> Auto-save settings</label>
+          <label class="toggle"><input id="noise" type="checkbox"> Film grain</label>
+          <label class="toggle"><input id="respectMotion" type="checkbox" checked> Respect reduced motion</label>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn primary" id="copyCss" type="button">📋 Copy CSS</button>
+          <button class="btn" id="exportJson" type="button">⇩ Export JSON</button>
+          <button class="btn" id="importJson" type="button">⇧ Import JSON</button>
+          <button class="btn" id="share" type="button">🔗 Copy share link</button>
+        </div>
+      </section>
+
+      <div class="status"><span id="statusText">Ready</span><span>ChromaFlow by Armin Mehraeen · dependency-free Web APIs</span></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="helpDialog">
+    <h2>ChromaFlow</h2>
+    <p>Use the controls to create a moving gradient. Your settings are stored locally when Auto-save is enabled.</p>
+    <ul>
+      <li><strong>Space</strong> — pause/resume</li>
+      <li><strong>R</strong> — randomize palette</li>
+      <li><strong>F</strong> — fullscreen preview</li>
+      <li><strong>Copy CSS</strong> — copy the generated background styles</li>
+      <li><strong>Export JSON</strong> — save the current design for later</li>
+    </ul>
+    <button class="btn primary" id="closeHelp" type="button">Close</button>
+  </dialog>
+  <input id="fileInput" class="sr-only" type="file" accept="application/json">
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'chromaflow:v2';
+      const DEFAULTS = {
+        colors:['#FFF338','#EE7752','#E73C7E','#FF67E7','#23A6D5','#28FFBF'],
+        type:'linear', easing:'ease-in-out', speed:12, angle:135, scale:400, blur:0, opacity:0.18,
+        noise:false, autoSave:true, respectMotion:true, paused:false
+      };
+      const PRESETS = {
+        Sunset:['#ff7e5f','#feb47b','#ff5f6d','#ffc371'],
+        Aurora:['#00f2fe','#4facfe','#7367f0','#b721ff'],
+        Ocean:['#001f3f','#0074D9','#39CCCC','#7FDBFF'],
+        Forest:['#134e5e','#71b280','#2e7d32','#b7e4c7'],
+        Candy:['#ff9a9e','#fad0c4','#fbc2eb','#a6c1ee'],
+        Midnight:['#0f172a','#312e81','#4c1d95','#0b1020'],
+        Fire:['#ff512f','#f09819','#ff0844','#ff6a00'],
+        Mono:['#111827','#374151','#6b7280','#e5e7eb']
+      };
+
+      const $ = id => document.getElementById(id);
+      const bg = $('background'), colorRoot = $('colors');
+      let state = loadState();
+      let timer = null;
+      let styleNode = document.createElement('style');
+      styleNode.id = 'chromaflow-runtime';
+      document.head.appendChild(styleNode);
+
+      function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+      function loadState(){
+        try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); return {...clone(DEFAULTS), ...(saved || {})}; }
+        catch { return clone(DEFAULTS); }
+      }
+      function save(){ if(state.autoSave) localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      function toast(message){ const el=$('toast'); el.textContent=message; el.classList.add('show'); clearTimeout(timer); timer=setTimeout(()=>el.classList.remove('show'),1800); }
+      function setStatus(message){ $('statusText').textContent=message; }
+      function hex(value){ return /^#[0-9a-f]{6}$/i.test(value) ? value.toUpperCase() : '#FFFFFF'; }
+
+      function renderColors(){
+        colorRoot.innerHTML='';
+        state.colors.forEach((color,index)=>{
+          const item=document.createElement('div'); item.className='color-item';
+          const picker=document.createElement('input'); picker.type='color'; picker.value=hex(color); picker.title=`Color ${index+1}`;
+          const input=document.createElement('input'); input.className='hex'; input.value=hex(color); input.maxLength=7; input.setAttribute('aria-label',`Color ${index+1} hex value`);
+          const remove=document.createElement('button'); remove.className='mini'; remove.textContent='×'; remove.title='Remove color'; remove.disabled=state.colors.length<=2;
+          picker.addEventListener('input',()=>{state.colors[index]=picker.value.toUpperCase(); input.value=state.colors[index]; apply();});
+          input.addEventListener('change',()=>{state.colors[index]=hex(input.value); input.value=state.colors[index]; picker.value=state.colors[index]; apply();});
+          remove.addEventListener('click',()=>{if(state.colors.length>2){state.colors.splice(index,1);renderColors();apply();}});
+          item.append(picker,input,remove); colorRoot.appendChild(item);
+        });
+      }
+
+      function renderPresets(){
+        const root=$('presets'); root.innerHTML='';
+        Object.entries(PRESETS).forEach(([name,colors])=>{
+          const b=document.createElement('button'); b.className='preset'; b.style.setProperty('--preview',`linear-gradient(135deg,${colors.join(',')})`); b.innerHTML=`<span>${name}</span>`;
+          b.addEventListener('click',()=>{state.colors=clone(colors);renderColors();apply();toast(`${name} preset applied`);}); root.appendChild(b);
+        });
+      }
+
+      function syncControls(){
+        ['type','easing','speed','angle','scale','blur','opacity','noise','autoSave','respectMotion'].forEach(id=>{ if($(id) && state[id] !== undefined) $(id).value=state[id]; });
+        $('noise').checked=!!state.noise; $('autoSave').checked=!!state.autoSave; $('respectMotion').checked=!!state.respectMotion;
+        $('speedValue').textContent=`${state.speed}s`; $('angleValue').textContent=`${state.angle}°`; $('scaleValue').textContent=`${state.scale}%`; $('blurValue').textContent=`${state.blur}px`; $('opacityValue').textContent=Math.round(state.opacity*100)+'%';
+      }
+
+      function gradient(){
+        if(state.type==='radial') return `radial-gradient(circle at 50% 50%, ${state.colors.join(', ')})`;
+        return `linear-gradient(${state.angle}deg, ${state.colors.join(', ')})`;
+      }
+      function apply(){
+        syncControls();
+        const css = `background: ${gradient()}; background-size: ${state.scale}% ${state.scale}%; animation: chromaflow-shift ${state.speed}s ${state.easing} infinite alternate; filter: blur(${state.blur}px);`;
+        bg.style.background=gradient(); bg.style.backgroundSize=`${state.scale}% ${state.scale}%`; bg.style.filter=`blur(${state.blur}px)`;
+        bg.style.setProperty('--noise-opacity',state.noise ? '.12' : '0');
+        const motion = state.paused || (state.respectMotion && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        styleNode.textContent=`@keyframes chromaflow-shift{0%{background-position:0% 50%;transform:scale(1.03)}50%{background-position:100% 50%;transform:scale(1.08)}100%{background-position:50% 100%;transform:scale(1.03)}}#background{animation:${motion?'none':`chromaflow-shift ${state.speed}s ${state.easing} infinite alternate`}}#background::after{background:radial-gradient(circle at 50% 50%,transparent 0 35%,rgba(0,0,0,${state.opacity}) 100%)}`;
+        save(); setStatus(motion ? (state.paused?'Paused':'Reduced motion active') : 'Live preview');
+      }
+
+      function randomColor(){ return '#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0').toUpperCase(); }
+      function randomize(){ const n=3+Math.floor(Math.random()*4); state.colors=Array.from({length:n},randomColor); state.angle=Math.floor(Math.random()*361); state.speed=+(5+Math.random()*20).toFixed(1); renderColors(); apply(); toast('Random design generated'); }
+      function reset(){ state=clone(DEFAULTS); renderColors(); syncControls(); apply(); toast('Reset complete'); }
+      function cssText(){ return `/* ChromaFlow generated CSS */\nbackground: ${gradient()};\nbackground-size: ${state.scale}% ${state.scale}%;\nanimation: chromaflow-shift ${state.speed}s ${state.easing} infinite alternate;\n\n@keyframes chromaflow-shift {\n  0% { background-position: 0% 50%; }\n  50% { background-position: 100% 50%; }\n  100% { background-position: 50% 100%; }\n}`; }
+      async function copy(text){ try{await navigator.clipboard.writeText(text);toast('Copied to clipboard');}catch{toast('Clipboard access unavailable');} }
+      function exportJson(){ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='chromaflow-design.json'; a.click(); URL.revokeObjectURL(a.href); toast('Design exported'); }
+      function share(){ const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(state)))); const url=`${location.href.split('#')[0]}#design=${encoded}`; copy(url); }
+      function importHash(){ const match=location.hash.match(/^#design=(.+)$/); if(!match)return; try{state={...clone(DEFAULTS),...JSON.parse(decodeURIComponent(escape(atob(match[1]))))};}catch{} }
+
+      $('addColor').addEventListener('click',()=>{if(state.colors.length<8){state.colors.push(randomColor());renderColors();apply();}else toast('Maximum is 8 colors');});
+      $('randomize').addEventListener('click',randomize); $('reset').addEventListener('click',reset);
+      ['type','easing','speed','angle','scale','blur','opacity'].forEach(id=>$(id).addEventListener('input',()=>{state[id]=$(id).value; if(['speed','angle','scale','blur','opacity'].includes(id)) state[id]=Number(state[id]); apply();}));
+      $('noise').addEventListener('change',e=>{state.noise=e.target.checked;apply();}); $('autoSave').addEventListener('change',e=>{state.autoSave=e.target.checked;save();apply();}); $('respectMotion').addEventListener('change',e=>{state.respectMotion=e.target.checked;apply();});
+      $('pauseBtn').addEventListener('click',()=>{state.paused=!state.paused; $('pauseBtn').textContent=state.paused?'▶ Resume':'⏸ Pause';apply();});
+      $('fullscreenBtn').addEventListener('click',async()=>{try{if(!document.fullscreenElement)await bg.requestFullscreen?.();else await document.exitFullscreen();}catch{toast('Fullscreen unavailable');}});
+      $('copyCss').addEventListener('click',()=>copy(cssText())); $('exportJson').addEventListener('click',exportJson); $('share').addEventListener('click',share);
+      $('helpBtn').addEventListener('click',()=>$('helpDialog').showModal()); $('closeHelp').addEventListener('click',()=>$('helpDialog').close());
+      $('importJson').addEventListener('click',()=>$('fileInput').click());
+      $('fileInput').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());state={...clone(DEFAULTS),...data};renderColors();apply();toast('Design imported');}catch{toast('Invalid JSON file');}e.target.value='';});
+      document.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();$('pauseBtn').click();}if(e.key.toLowerCase()==='r')randomize();if(e.key.toLowerCase()==='f')$('fullscreenBtn').click();});
+      window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change',apply);
+
+      importHash(); renderColors(); renderPresets(); syncControls(); apply();
     })();
-</script>
+  </script>
 </body>
 </html>
